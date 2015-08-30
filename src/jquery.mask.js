@@ -132,6 +132,22 @@
                        p.val('');
                    }
                 });
+				
+				
+				// clear the value when submitting the form
+				var clearMaskOnSubmitEvent = function(){
+					if (options.clearMaskOnSubmit === true){
+						var mask = el.data('mask');
+						el.unmask();
+						
+						//restore masks after the form submission
+						window.setTimeout(function(){
+							el.mask(mask.mask, mask.options);
+						}, 500);
+					}					
+				};
+				el.data('mask-clearMaskOnSubmitEvent', clearMaskOnSubmitEvent)
+				  .closest('form').on('submit.mask', clearMaskOnSubmitEvent);
             },
             getRegexMask: function() {
                 var maskChunks = [], translation, pattern, optional, recursive, oRecursive, r;
@@ -168,6 +184,7 @@
             },
             destroyEvents: function() {
                 el.off(['input', 'keydown', 'keyup', 'paste', 'drop', 'blur', 'focusout', ''].join('.mask '));
+				el.closest('form').off('submit.mask', null, el.data('mask-clearMaskOnSubmitEvent'));
             },
             val: function(v) {
                 var isInput = el.is('input'),
@@ -474,7 +491,8 @@
             '#': {pattern: /\d/, recursive: true},
             'A': {pattern: /[a-zA-Z0-9]/},
             'S': {pattern: /[a-zA-Z]/}
-        }
+        },
+		clearMaskOnSubmit: false
     };
 
     $.jMaskGlobals = $.jMaskGlobals || {};
